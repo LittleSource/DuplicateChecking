@@ -1,0 +1,15 @@
+1.安装谷歌chrome浏览器
+安装包已经帮你下载好，双击安装
+2.安装Python
+安装包已经帮你下载好，双击安装
+3.终端执行命令
+pip install selenium
+pip install flask
+4.安装完成
+
+如何打开软件
+终端执行命令python main.py
+此时会打开一个浏览器界面，拖到一边备用
+再次打开一个浏览器
+并且输入网址 http//:localhost:5000
+证明安装成功

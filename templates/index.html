@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>亦文校验</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+
+        body {
+            background: url(https://yuange666.oss-cn-beijing.aliyuncs.com/bg.jpg);
+        }
+
+        .table {
+            margin-top: 5px;
+            font-size: 16px;
+            table-layout: fixed;
+        }
+
+        .table>tbody>tr>td {
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .panel-body div:nth-child(n+1) {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 col-sm-10 col-md-8 col-lg-5 center-block" style="float: none;">
+            <div class="panel panel-success" style="margin-top: 20px;">
+                <div class="panel-heading">
+                    <h3 class="panel-title" style="font-size: 26px;text-align: center;">亦文校验</h3>
+                </div>
+                <div class="panel-body">
+                    <textarea class="form-control" id="word" rows="10"></textarea>
+                    <div class="form-group">
+                        <label for="noUse1">飘红比例</label>
+                        <select class="form-control" id="floatRedLie">
+                            <option>0.1</option>
+                            <option>0.2</option>
+                            <option>0.3</option>
+                            <option selected>0.4</option>
+                            <option>0.5</option>
+                            <option>0.6</option>
+                            <option>0.7</option>
+                            <option>0.8</option>
+                            <option>0.9</option>
+                        </select>
+                    </div>
+                    <div class="btn-group btn-group-justified">
+                        <a class="btn btn-block btn-success" type="button" id="submit1">提交</a>
+                        <a class="btn btn-block btn-warning" type="button" id="submit2">重置</a>
+                    </div>
+                    <ul class="nav nav-tabs" id="myTab">
+                        <li><a href="#tabbaidu" data-toggle="tab">百度</a></li>
+                        <li><a href="#tab360" data-toggle="tab">360</a></li>
+                        <li><a href="#tabsogou" data-toggle="tab">搜狗</a></li>
+                    </ul>
+                    <div class="tab-content" id="tab">
+                        <div class="tab-pane fade in active" id="tabbaidu">
+                            <table class="table table-bordered table-hover text-nowrap table-striped">
+                                <thead>
+                                <tr>
+                                    <th style="width: 50%">被校验文本</th>
+                                    <th style="width: 30%">链接</th>
+                                    <th style="width: 10%">抄袭</th>
+                                </tr>
+                                </thead>
+                                <tbody id="bodbaidu" class="small">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="tab360">
+                            <table class="table table-bordered table-hover text-nowrap table-striped">
+                                <thead>
+                                <tr>
+                                    <th style="width: 50%">被校验文本</th>
+                                    <th style="width: 30%">链接</th>
+                                    <th style="width: 10%">抄袭</th>
+                                </tr>
+                                </thead>
+                                <tbody id="bod360" class="small">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="tabsogou">
+                            <table class="table table-bordered table-hover text-nowrap table-striped">
+                                <thead>
+                                <tr>
+                                    <th style="width: 50%">被校验文本</th>
+                                    <th style="width: 30%">链接</th>
+                                    <th style="width: 10%">抄袭</th>
+                                </tr>
+                                </thead>
+                                <tbody id="bodsogou" class="small">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="panel-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.staticfile.org/layer/2.3/layer.js"></script>
+<script>
+    const urlbaidu = '1';
+    const url360 = '2';
+    const urlsogou = '3';
+    var ajaxCount = 0;
+    var ajaxSum = 0;
+    var load = null;
+    $("#tab").css("display", "none");
+    $('#myTab a:first').tab('show');// 选取第一个标签页
+    $("#submit1").click(function() {
+        $("#tab").css("display", "table");
+        ajaxCount = 0;
+        var word = $("#word").val();
+        var floatRedLie = $("#floatRedLie").val();
+        word = word.replace(/[0-9a-zA-Z]/g, ""); //去除字母
+        word = word.replace(/<\/?.+?>/g, ""); //去除回车
+        word = word.replace(/[\r\n]/g, "");
+        word = word.replace(/(^\s*)|(\s*$)/g, ""); //去除两端空格
+        word = word.replace(/\s/g, ''); ////去除中间空格
+        load = layer.load();
+        if (word.length > 6000) {
+            var strArr = str_slice(word, 6000);
+            ajaxSum = strArr.length * 3;
+            for (var i = 0; i < strArr.length; i++) {
+                Reqbaidu(strArr[i], floatRedLie);
+                Req360(strArr[i], floatRedLie);
+                Reqsogou(strArr[i], floatRedLie);
+            }
+        } else {
+            ajaxSum = 3;
+            Reqbaidu(word, floatRedLie);
+            Req360(word, floatRedLie);
+            Reqsogou(word, floatRedLie);
+        }
+    });
+    $("#submit2").click(function() {
+        clearSome();
+        $("#word").val('');
+    });
+    $("#floatRedLie").change(function(){
+        clearSome();
+    });
+    $("#befurl").change(function(){
+        clearSome();
+    });
+
+    function clearSome() {
+        $("#bodbaidu").html("");
+        $("#bod360").html("");
+        $("#bodsogou").html("");
+        $("#tab").css("display", "none");
+    }
+
+    function str_slice(str, len) {
+        var strArr = [];
+        var n = len;
+        for (var i = 0, l = str.length; i < l / n; i++) {
+            let a = str.slice(n * i, n * (i + 1));
+            strArr.push(a);
+        }
+        return strArr;
+    }
+
+    function render(resArr,url) {
+        for (var i = 0; i < resArr.length; i++) {
+            var row = document.createElement("tr");
+            if (resArr[i].status == 1) {
+                row.className = "danger";
+            } else {
+                row.className = "success";
+            }
+
+            var cell = document.createElement("td");
+            cell.appendChild(document.createTextNode(resArr[i].word));
+            row.appendChild(cell);
+
+            var cell = document.createElement("td");
+            let node = '<a href="' + resArr[i].url + '">' + resArr[i].url + '</a>';
+            cell.innerHTML = node;
+            row.appendChild(cell);
+
+            var cell = document.createElement("td");
+            cell.appendChild(document.createTextNode(resArr[i].status));
+            row.appendChild(cell);
+            switch (url) {
+                case urlbaidu:
+                    document.getElementById("bodbaidu").appendChild(row);
+                    break;
+                case url360:
+                    document.getElementById("bod360").appendChild(row);
+                    break;
+                case urlsogou:
+                    document.getElementById("bodsogou").appendChild(row);
+                    break;
+            }
+
+        }
+    }
+
+    function Reqbaidu(word, floatRedLie) {
+        $.ajax({
+            url: './start',
+            type: 'post',
+            data: {
+                word: word,
+                befurl: urlbaidu,
+                floatRedLie: floatRedLie
+            },
+            success: function(res) {
+                ajaxCallback(1,res,urlbaidu);
+            },
+            error: function(xhr) {
+                ajaxCallback(0,xhr);
+            }
+        })
+    }
+
+    function Req360(word, floatRedLie) {
+        $.ajax({
+            url: './start',
+            type: 'post',
+            data: {
+                word: word,
+                befurl: url360,
+                floatRedLie: floatRedLie
+            },
+            success: function(res) {
+                ajaxCallback(1,res,url360);
+            },
+            error: function(xhr) {
+                ajaxCallback(0,xhr);
+            }
+        })
+    }
+
+    function Reqsogou(word, floatRedLie) {
+        $.ajax({
+            url: './start',
+            type: 'post',
+            data: {
+                word: word,
+                befurl: urlsogou,
+                floatRedLie: floatRedLie
+            },
+            success: function(res) {
+                ajaxCallback(1,res,urlsogou);
+            },
+            error: function(xhr) {
+                ajaxCallback(0,xhr);
+            }
+        })
+    }
+
+    function ajaxCallback(type, res, url=null){
+        console.log(res);
+        ajaxCount++;
+        if(type){
+            render(res,url);
+        }
+        if(ajaxCount === ajaxSum){
+            layer.close(load);
+        }
+    }
+</script>
+</body>
+
+</html>

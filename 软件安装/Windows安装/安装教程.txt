@@ -1,0 +1,11 @@
+1.安装谷歌chrome浏览器
+安装包已经帮你下载好，双击安装
+2.安装Python
+安装包已经帮你下载好，双击安装
+3.命令行或终端执行命令
+pip install selenium
+pip install flask
+4.安装完成
+双击 启动.bat
+此时会打开两个浏览器界面
+证明安装成功
